@@ -42,6 +42,8 @@ app.listen(PORT, () => console.log(`App is up on ${PORT}`));
 ////////////////////////////////////////
 
 // Error handler
+
+//refactor error handler to handle different types of errors, as opossed to handling ALL errors.
 function handleError(err, res) {
   console.error(err);
   if (res) res.status(500).send('Sorry, something went wrong');
