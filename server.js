@@ -29,28 +29,25 @@ app.use(cors());
 // New version
 app.get('/location', (request, response) => {
   searchToLatLong(request.query.data)
-    .then(location => response.send(location))
+    .then(location => response.send(location)) // 'location' is instance of object returned by searchToLatLong()
     .catch(error => handleError(error, response));
 });
 
 // Event listener for route 'weather'
-
-//CALLBACK FUNC FOR WEATHER
 // Old version
-app.get('/weather', (req, res) => {
-  const weatherData = getWeather(req.query.data);
-  res.send(weatherData);
-});
+// app.get('/weather', (req, res) => {
+//   const weatherData = getWeather(req.query.data);
+//   res.send(weatherData);
+// });
 
 // New version
 app.get('/weather', getWeather);
 
-//TODO you will need to put a meetups route here that uses meetups handler - WE CREATE 
-//TODO catch all route for error handling
-
+// TODO Meetups route here (uses meetups handler to be created in helper functs section)
+//TODO catch all routes for error handling
 
 // Catch-all route that invokes error handler if bad request for location path comes in
-// TODO Only checks for bad *path*. More robust handler will handle other types of bad requests
+// TODO Only checks for bad *path*; add more robust handler to handle other types of bad requests
 app.use('*', handleError);
 
 // Event listener that makes server listen for requests
@@ -62,10 +59,8 @@ app.listen(PORT, () => console.log(`App is up on ${PORT}`));
 ////////////////////////////////////////
 
 // Error handler
-
-//refactor error handler to handle different types of errors, as opossed to handling ALL errors.
 function handleError(err, res) {
-  // console.error(err);
+  // console.error(err); // Returns error object
   if (res) res.status(500).send('Sorry, something went wrong');
 }
 
@@ -74,19 +69,16 @@ function searchToLatLong(query) {
   // OLD WAY TO RETRIEVE DATA
   // const geoData = require('./data/geo.json');
 
-  //replace local data source with live api call to get data dynamically
-
-
   // NEW WAY TO RETRIEVE DATA
   // Send API URL with query string we want: URL plus '
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
 
-  // OLD CODE (IS REPLACED BY BLOCK BELOW 
+  // OLD CODE (IS REPLACED BY BLOCK BELOW)
   // const location = new Location(query, geoData);
   // console.log('location in searchToLatLong()', location);
   // return location;
 
-  // NEW CODE FROM CLASS  
+  // NEW CODE  
   return superagent.get(url)
     .then(result => {
       return new Location(query, result);
@@ -98,7 +90,7 @@ function Location(query, res) { // 'res' is short for 'result'
   this.search_query = query;
   this.formatted_query = res.body.results[0].formatted_address;
   this.latitude = res.body.results[0].geometry.location.lat;
-  this.longitude = res.body.results[0].geometry.location.lng; 
+  this.longitude = res.body.results[0].geometry.location.lng;
 }
 
 // Constructor needed for function getWeather()
@@ -107,20 +99,24 @@ function Weather(day) {
   // Get Date/time on server itself (faster than requesting it from API)
   this.time = new Date(day.time * 1000).toString().slice(0, 15);
 }
-//take in dynamic lat and long to return dynamic data for weather
+
+// Weather route handler
 function getWeather(request, response) {
+  // Old code
   // const darkskyData = require('./data/darksky.json');
+
+  // New code
   const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
-  
+
   superagent.get(url)
     .then(result => {
-      const weatherSummaries = result.body.daily.data.map( day => {
+      const weatherSummaries = result.body.daily.data.map(day => {
         return new Weather(day);
       });
-      response.send(weatherSummaries);
+      response.send(weatherSummaries); // ???
     })
     .catch(error => handleError(error, response));
-  // console.log('log', weatherSummaries)
   // return weatherSummaries;
 }
 
+// TODO Meetups route handler
