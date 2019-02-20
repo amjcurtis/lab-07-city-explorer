@@ -18,10 +18,19 @@ app.use(cors());
 ////////////////////////////////////////
 
 // Event listener for route 'location' (so client can request location data)
-app.get('/location', (req, res) => { // 'req is request, 'res' is response
-  //TODO refactor per 2.png - api route
-  const locationData = searchToLatLong(req.query.data);
-  res.send(locationData);
+
+// Old version
+// app.get('/location', (req, res) => { // 'req is request, 'res' is response
+//   //TODO refactor per 2.png - api route
+//   const locationData = searchToLatLong(req.query.data);
+//   res.send(locationData);
+// });
+
+// New version
+app.get('/location', (request, response) => {
+  searchToLatLong(request.query.data)
+    .then(location => response.send(location))
+    .catch(error => handleError(error, response));
 });
 
 // Event listener for route 'weather'
@@ -56,7 +65,7 @@ function handleError(err, res) {
   if (res) res.status(500).send('Sorry, something went wrong');
 }
 
-//
+// Geocode lookup handler
 function searchToLatLong(query) {
   // OLD WAY TO RETRIEVE DATA
   const geoData = require('./data/geo.json');
@@ -65,19 +74,21 @@ function searchToLatLong(query) {
 
 
   // NEW WAY TO RETRIEVE DATA
-  // Send API URL with query string we want: URL plus '?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
+  // Send API URL with query string we want: URL plus '
+  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
+
 
   // OLD CODE (IS REPLACED BY BLOCK BELOW 
-  const location = new Location(query, geoData);
-  console.log('location in searchToLatLong()', location);
-  return location;
+  // const location = new Location(query, geoData);
+  // console.log('location in searchToLatLong()', location);
+  // return location;
 
   // NEW CODE FROM CLASS  
-//   return superagent.get(url)
-//     .then(result => {
-//       return new Location(query, result);
-//     })
-//     .catch(error => handleError);
+  return superagent.get(url)
+    .then(result => {
+      return new Location(query, result);
+    })
+    .catch(error => handleError(error));
 }
 
 function Location(query, res) { // 'res' is short for 'result'
