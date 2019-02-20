@@ -51,7 +51,8 @@ function handleError(err, res) {
 function searchToLatLong(query) {
   // OLD WAY TO RETRIEVE DATA
   const geoData = require('./data/geo.json');
-  
+  //replace local data source with live api call to get data dynamically
+
   // NEW WAY TO RETRIEVE DATA
   // Send API URL with query string we want: URL plus '?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
 
