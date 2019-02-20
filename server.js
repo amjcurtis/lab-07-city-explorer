@@ -49,15 +49,20 @@ app.listen(PORT, () => console.log(`App is up on ${PORT}`));
 ////////////////////////////////////////
 
 // Error handler
+
+//refactor error handler to handle different types of errors, as opossed to handling ALL errors.
 function handleError(err, res) {
   // console.error(err);
   if (res) res.status(500).send('Sorry, something went wrong');
 }
 
-// 
+//
 function searchToLatLong(query) {
   // OLD WAY TO RETRIEVE DATA
   const geoData = require('./data/geo.json');
+
+  //replace local data source with live api call to get data dynamically
+
 
   // NEW WAY TO RETRIEVE DATA
   // Send API URL with query string we want: URL plus '?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
@@ -83,8 +88,10 @@ function Location(query, res) { // 'res' is short for 'result'
   this.longitude = res.results[0].geometry.location.lng; // TODO: CHANGE [0] TO res.body.results
 }
 
-function getWeather(req, res) {
-  console.log('log?')
+
+//take in dynamic lat and long to return dynamic data for weather
+function getWeather() {
+
   const darkskyData = require('./data/darksky.json');
 
   const weatherSummaries = darkskyData.daily.data.map( day => {
