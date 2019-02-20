@@ -49,7 +49,7 @@ function handleError(err, res) {
   if (res) res.status(500).send('Sorry, something went wrong');
 }
 
-// 
+//
 function searchToLatLong(query) {
   // OLD WAY TO RETRIEVE DATA
   const geoData = require('./data/geo.json');
@@ -79,6 +79,7 @@ function Location(query, res) { // 'res' is short for 'result'
   this.longitude = res.results[0].geometry.location.lng; // TODO: CHANGE [0] TO res.body.results
 }
 
+//take in dynamic lat and long to return dynamic data for weather
 function getWeather() {
   const darkskyData = require('./data/darksky.json');
 
