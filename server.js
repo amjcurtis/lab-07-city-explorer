@@ -68,12 +68,9 @@ function handleError(err, res) {
   if (res) res.status(500).send('Sorry, something went wrong');
 }
 
-// TODO Refactor for SQL
-  // We wanna store location in SQL db IF IT DOESN'T EXIST
-  // IF IT DOES EXIST, return the data
-
-
-
+// Refactor for SQL
+  // We wanna get location from Google and store in SQL db IF IT DOESN'T EXIST
+  // IF IT DOES EXIST, retrieve and RETURN the data
 // Geocode lookup handler
 function searchToLatLong(query) {
   
@@ -81,34 +78,36 @@ function searchToLatLong(query) {
   const SQL = `SELECT * FROM locations WHERE search_query=$1;`; // Why $1? Answer: protection against hacking. Takes first value in the "values" array and assigns it to $1. It's alternative to putting a template literal like ${query} into our DB query, which'd make us vulnerable to attack.
   const values = [query];           // query is e.g. 'Seattle'
   return client.query(SQL, values); // query is method on DB instance
-  .then(result => {
-    if (result.rowCounts > 0) {     // Checks if rows with content exist
-      console.log('From SQL');
-      return result.rows[0];        // An array
-    } else {
-      const _URL = ``;               // Add Google API URL (template literals and all)
+    .then(result => {
+      if (result.rowCounts > 0) {     // Checks if rows with content exist
+        console.log('From SQL');
+        return result.rows[0];        // An array
+      } else {
+        const url = ``;               // ADD GOOGLE API URL (template literals and all)
 
-      return superagent.get(url)
-        .then(data =>
-          console.log('From API');
-          if (!data.body.results.length) {
-            throw 'no data'
-          } else {
-            let location = new Location(query, data.body.results[0]); // ...results[0], b/c we want
-            let newSQL = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);`;
+        return superagent.get(url)
+          .then(data =>
+            console.log('From API');
+            if (!data.body.results.length) {
+              throw 'no data'
+            } else {
+              let location = new Location(query, data.body.results[0]); // ...results[0], because it saves us from having to... ??
+              let newSQL = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);`;
 
-            let newValues = Object.values(location); // Creates new location object that pulls our [...?] values and puts them into array
-            console.log(`Log of "newValues": ${newValues}`);
+              let newValues = Object.values(location);    // Creates new location object that pulls our [...?] values and puts them into array
+              console.log(`Log of "newValues": ${newValues}`);
 
-            return client.query(newSQL, newValues)
-            .then (results => {
-              location.id = results.rows[0].id
-            })
-          }
-        .catch(error => handleError);
-      }    
-    }
-  });
+              return client.query(newSQL, newValues)
+              .then (data => {   // Is this and following couple lines correct? Check demo code
+                console.log('Looking for ID', data);
+                location.id = data.body.results[0].id;
+              })
+            }
+          .catch(error => handleError);
+        }    
+      }
+    });
+}
 
   // OLD WAY TO RETRIEVE DATA
   // const geoData = require('./data/geo.json');
