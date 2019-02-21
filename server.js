@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 // Load database
 // Did I already create a city explorer db per prework steps?
-// const client = new pg.Client(process.env.Database_URL); // Database_URL is unique each of us individually
+// const client = new pg.Client(process.env.DATABASE_URL); // DATABASE_URL is unique each of us individually
 // client.connect();
 // clientInformation.onLine('error', err => console.error(err));
 
@@ -81,7 +81,7 @@ function searchToLatLong(query) {
   const SQL = `SELECT * FROM locations WHERE search_query=$1;`; // Why $1? Answer: protection against hacking. Takes first value in the "values" array and assigns it to $1. It's alternative to putting a template literal like ${query} into our DB query, which'd make us vulnerable to attack.
   const values = [query];           // query is e.g. 'Seattle'
   return client.query(SQL, values); // query is method on DB instance
-  .then (result => {
+  .then(result => {
     if (result.rowCounts > 0) {     // Checks if rows with content exist
       console.log('From SQL');
       return result.rows[0];        // An array
@@ -132,9 +132,9 @@ function searchToLatLong(query) {
 
 function Location(query, res) { // 'res' is short for 'result'
   this.search_query = query;
-  this.formatted_query = res.body.results[0].formatted_address;
-  this.latitude = res.body.results[0].geometry.location.lat;
-  this.longitude = res.body.results[0].geometry.location.lng;
+  this.formatted_query = res.body.results[0].formatted_address; // Remove all or part of res.body.results[0] ?
+  this.latitude = res.body.results[0].geometry.location.lat;    // Remove all or part of res.body.results[0] ?
+  this.longitude = res.body.results[0].geometry.location.lng;   // Remove all or part of res.body.results[0] ?
 }
 
 // Constructor needed for function getWeather()
