@@ -27,11 +27,6 @@ app.use(cors());
 ////////////////////////////////////////
 
 // Event listener for route 'location' (so client can request location data)
-// Old version
-// app.get('/location', (req, res) => { // 'req is request, 'res' is response
-//   const locationData = searchToLatLong(req.query.data);
-//   res.send(locationData);
-// });
 // New version
 app.get('/location', (request, response) => {
   searchToLatLong(request.query.data)
@@ -40,23 +35,16 @@ app.get('/location', (request, response) => {
 });
 
 // Event listener for route 'weather'
-// Old version
-// app.get('/weather', (req, res) => {
-//   const weatherData = getWeather(req.query.data);
-//   res.send(weatherData);
-// });
 // New version
 app.get('/weather', getWeather);
 
 // TODO Meetups route here (uses meetups handler to be created in helper functs section)
-//TODO catch all routes for error handling
 
 // Catch-all route that invokes error handler if bad request for location path comes in
-// TODO Only checks for bad *path*; add more robust handler to handle other types of bad requests
 app.use('*', handleError);
 
-// Event listener that starts server listening to port; goes below routes
-app.listen(PORT, () => console.log(`App is up on ${PORT}`));
+// Event listener that starts server listening to port; typ. goes below routes
+app.listen(PORT, () => console.log(`Listening on PORT ${PORT}`));
 
 ////////////////////////////////////////
 // HELPER FUNCTIONS
@@ -68,12 +56,13 @@ function handleError(err, res) {
   if (res) res.status(500).send('Sorry, something went wrong');
 }
 
-// Refactor for SQL
-  // We wanna get location from Google and store in SQL db IF IT DOESN'T EXIST
-  // IF IT DOES EXIST, retrieve and RETURN the data
 // Geocode lookup handler
 function searchToLatLong(query) {
-  
+
+  // Refactor for SQL
+  // We wanna get location from Google and store in SQL db IF IT DOESN'T EXIST
+  // IF IT DOES EXIST, retrieve and RETURN the data
+
   // Check SQL db for search query to see if it's there already
   const SQL = `SELECT * FROM locations WHERE search_query=$1;`; // Why $1? Answer: protection against hacking. Takes first value in the "values" array and assigns it to $1. It's alternative to putting a template literal like ${query} into our DB query, which'd make us vulnerable to attack.
   const values = [query];           // query is e.g. 'Seattle'
@@ -113,15 +102,8 @@ function searchToLatLong(query) {
   // const geoData = require('./data/geo.json');
 
   // NEW WAY TO RETRIEVE DATA
-  // Send API URL with query string we want
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
 
-  // OLD CODE (IS REPLACED BY BLOCK BELOW)
-  // const location = new Location(query, geoData);
-  // console.log('location in searchToLatLong()', location);
-  // return location;
-
-  // NEW CODE
   return superagent.get(url)
     .then(result => {
       return new Location(query, result);
@@ -151,7 +133,7 @@ function getWeather(request, response) {
   // New code
   const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
 
-  superagent.get(url)
+  return superagent.get(url)
     .then(result => {
       const weatherSummaries = result.body.daily.data.map(day => {
         return new Weather(day);
@@ -159,7 +141,6 @@ function getWeather(request, response) {
       response.send(weatherSummaries); // ???
     })
     .catch(error => handleError(error, response));
-  // return weatherSummaries;
 }
 
 // TODO Meetups route handler
