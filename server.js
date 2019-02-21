@@ -7,9 +7,18 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
+const pg = require('pg');
 
 // Application setup
 const PORT = process.env.PORT || 3000;
+
+// Load database
+// Did I already create a city explorer db per prework steps?
+// const client = new pg.Client(process.env.Database_URL); // Database_URL is unique each of us individually
+// client.connect();
+// clientInformation.onLine('error', err => console.error(err));
+
+// Load expressJS
 const app = express();
 app.use(cors());
 
@@ -18,14 +27,11 @@ app.use(cors());
 ////////////////////////////////////////
 
 // Event listener for route 'location' (so client can request location data)
-
 // Old version
 // app.get('/location', (req, res) => { // 'req is request, 'res' is response
-//   //TODO refactor per 2.png - api route
 //   const locationData = searchToLatLong(req.query.data);
 //   res.send(locationData);
 // });
-
 // New version
 app.get('/location', (request, response) => {
   searchToLatLong(request.query.data)
@@ -39,7 +45,6 @@ app.get('/location', (request, response) => {
 //   const weatherData = getWeather(req.query.data);
 //   res.send(weatherData);
 // });
-
 // New version
 app.get('/weather', getWeather);
 
@@ -50,8 +55,7 @@ app.get('/weather', getWeather);
 // TODO Only checks for bad *path*; add more robust handler to handle other types of bad requests
 app.use('*', handleError);
 
-// Event listener that makes server listen for requests
-// Server starter to listen to port goes below routes
+// Event listener that starts server listening to port; goes below routes
 app.listen(PORT, () => console.log(`App is up on ${PORT}`));
 
 ////////////////////////////////////////
@@ -64,13 +68,53 @@ function handleError(err, res) {
   if (res) res.status(500).send('Sorry, something went wrong');
 }
 
+// TODO Refactor for SQL
+  // We wanna store location in SQL db IF IT DOESN'T EXIST
+  // IF IT DOES EXIST, return the data
+
+
+
 // Geocode lookup handler
 function searchToLatLong(query) {
+  
+  // Check SQL db for search query to see if it's there already
+  const SQL = `SELECT * FROM locations WHERE search_query=$1;`; // Why $1? Answer: protection against hacking. Takes first value in the "values" array and assigns it to $1. It's alternative to putting a template literal like ${query} into our DB query, which'd make us vulnerable to attack.
+  const values = [query];           // query is e.g. 'Seattle'
+  return client.query(SQL, values); // query is method on DB instance
+  .then (result => {
+    if (result.rowCounts > 0) {     // Checks if rows with content exist
+      console.log('From SQL');
+      return result.rows[0];        // An array
+    } else {
+      const _URL = ``;               // Add Google API URL (template literals and all)
+
+      return superagent.get(url)
+        .then(data =>
+          console.log('From API');
+          if (!data.body.results.length) {
+            throw 'no data'
+          } else {
+            let location = new Location(query, data.body.results[0]); // ...results[0], b/c we want
+            let newSQL = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4);`;
+
+            let newValues = Object.values(location); // Creates new location object that pulls our [...?] values and puts them into array
+            console.log(`Log of "newValues": ${newValues}`);
+
+            return client.query(newSQL, newValues)
+            .then (results => {
+              location.id = results.rows[0].id
+            })
+          }
+        .catch(error => handleError);
+      }    
+    }
+  });
+
   // OLD WAY TO RETRIEVE DATA
   // const geoData = require('./data/geo.json');
 
   // NEW WAY TO RETRIEVE DATA
-  // Send API URL with query string we want: URL plus '
+  // Send API URL with query string we want
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
 
   // OLD CODE (IS REPLACED BY BLOCK BELOW)
@@ -78,7 +122,7 @@ function searchToLatLong(query) {
   // console.log('location in searchToLatLong()', location);
   // return location;
 
-  // NEW CODE  
+  // NEW CODE
   return superagent.get(url)
     .then(result => {
       return new Location(query, result);
