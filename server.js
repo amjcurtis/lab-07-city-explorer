@@ -1,13 +1,13 @@
 'use strict';
 
-// Load environment variables from .env file
-require('dotenv').config();
-
 // Application dependencies
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
-const pg = require('pg');
+// const pg = require('pg');
+
+// Load environment variables from .env file
+require('dotenv').config();
 
 // Application setup
 const PORT = process.env.PORT || 3000;
@@ -62,7 +62,7 @@ function searchToLatLong(query) {
   // Refactor for SQL
   // We wanna get location from Google and store in SQL db IF IT DOESN'T EXIST
   // IF IT DOES EXIST, retrieve and RETURN the data
-
+/*
   // Check SQL db for search query to see if it's there already
   const SQL = `SELECT * FROM locations WHERE search_query=$1;`; // Why $1? Answer: protection against hacking. Takes first value in the "values" array and assigns it to $1. It's alternative to putting a template literal like ${query} into our DB query, which'd make us vulnerable to attack.
   const values = [query];           // query is e.g. 'Seattle'
@@ -95,9 +95,7 @@ function searchToLatLong(query) {
           .catch(error => handleError);
         }    
       }
-    });
-}
-
+*/
   // OLD WAY TO RETRIEVE DATA
   // const geoData = require('./data/geo.json');
 
@@ -114,6 +112,7 @@ function searchToLatLong(query) {
 function Location(query, res) { // 'res' is short for 'result'
   this.search_query = query;
   this.formatted_query = res.body.results[0].formatted_address; // Remove all or part of res.body.results[0] ?
+  // console.log(`res.body.results[0].formatted_address is ${res.body.results[0].formatted_address}`);
   this.latitude = res.body.results[0].geometry.location.lat;    // Remove all or part of res.body.results[0] ?
   this.longitude = res.body.results[0].geometry.location.lng;   // Remove all or part of res.body.results[0] ?
 }
@@ -132,15 +131,20 @@ function getWeather(request, response) {
 
   // New code
   const url = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${request.query.data.latitude},${request.query.data.longitude}`;
-
+  console.log('Weather API call URL', url);
+  // console.log('request', request);
+  console.log('request.query', request.query);
+  console.log('request.query.data', request.query.data);
+  
   return superagent.get(url)
     .then(result => {
       const weatherSummaries = result.body.daily.data.map(day => {
         return new Weather(day);
       });
+      console.log('weatherSummaries is', weatherSummaries);
       response.send(weatherSummaries); // ???
     })
     .catch(error => handleError(error, response));
 }
 
-// TODO Meetups route handler
+// TODO Meetups route handler 
