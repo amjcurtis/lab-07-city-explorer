@@ -12,11 +12,7 @@ require('dotenv').config();
 // Application setup
 const PORT = process.env.PORT || 3000;
 
-// Load database
-// Did I already create a city explorer db per prework steps?
-// const client = new pg.Client(process.env.DATABASE_URL); // DATABASE_URL is unique each of us individually
-// client.connect();
-// clientInformation.onLine('error', err => console.error(err));
+
 
 // Load expressJS
 const app = express();
@@ -38,7 +34,6 @@ app.get('/location', (request, response) => {
 // New version
 app.get('/weather', getWeather);
 
-// TODO Meetups route here (uses meetups handler to be created in helper functs section)
 
 // Catch-all route that invokes error handler if bad request for location path comes in
 app.use('*', handleError);
@@ -59,10 +54,6 @@ function handleError(err, res) {
 // Geocode lookup handler
 function searchToLatLong(query) {
 
-  // Refactor for SQL
-  // We wanna get location from Google and store in SQL db IF IT DOESN'T EXIST
-  // IF IT DOES EXIST, retrieve and RETURN the data
-/*
   // Check SQL db for search query to see if it's there already
   const SQL = `SELECT * FROM locations WHERE search_query=$1;`; // Why $1? Answer: protection against hacking. Takes first value in the "values" array and assigns it to $1. It's alternative to putting a template literal like ${query} into our DB query, which'd make us vulnerable to attack.
   const values = [query];           // query is e.g. 'Seattle'
@@ -96,9 +87,7 @@ function searchToLatLong(query) {
         }    
       }
 */
-  // OLD WAY TO RETRIEVE DATA
-  // const geoData = require('./data/geo.json');
-
+ 
   // NEW WAY TO RETRIEVE DATA
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${query}&key=${process.env.GEOCODE_API_KEY}`;
 
