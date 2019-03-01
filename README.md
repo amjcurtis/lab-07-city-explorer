@@ -12,7 +12,8 @@ Each day of this project we and my pair-programming partner will deploy this bac
 We will be hooking up the back-end app to the front-end code base for the client, but I will not be modifying the client-side code in any way.
 
 ## Getting Started
-<!-- What are the steps that a user must take in order to build this app on their own machine and get it running? -->
+create the server and database -
+hook up connections from front to back
 
 ## Architecture
 
@@ -25,43 +26,45 @@ For this project we will be using the following technologies:
 * **APIs:** Google Geocoding, Yelp, Dark Sky, The Movie DB
 
 ## Change Log
-<!-- Use this area to document the iterative changes made to your application as each feature is successfully implemented. Use time stamps. Here's an examples:
+
 
 01-01-2001 4:59pm - Application now has a fully-functional express server, with a GET route for the location resource. -->
 
-`02-20-2019 9:00am`
+02-20-2019 9:00am started on back end
+02-21-2019 9:am storing data in the databse
+02-21-2019 1 pm
 
 ## Credits and Collaborations
 
 This project was done in collaboration with Tanner Percival ([Tanner253](https://github.com/Tanner253)).
 
 
-## Number and name of feature: 
+## Number and name of feature: server setup
 
-Estimate of time needed to complete: _____
+Estimate of time needed to complete: _____ 1 hour
 
-Start time: _____
+Start time: _____ 9am 
 
-Finish time: _____
+Finish time: _____11 am
 
-Actual time needed to complete: _____
+Actual time needed to complete: _____ 2 hours
 
-## Number and name of feature: 
+## Number and name of feature: database setup
 
-Estimate of time needed to complete: _____
+Estimate of time needed to complete: _____5 hours
 
-Start time: _____
+Start time: _____9 am
 
-Finish time: _____
+Finish time: _____2 pm
 
-Actual time needed to complete: _____
+Actual time needed to complete: _____ more than 5 hours to set everything up
 
-## Number and name of feature: 
+## Number and name of feature: working app
 
-Estimate of time needed to complete: _____
+Estimate of time needed to complete: _____ 4 hrs
 
-Start time: _____
+Start time: _____2/20 9 am 
 
-Finish time: _____
+Finish time: _____2/25 5 pm
 
-Actual time needed to complete: _____
+Actual time needed to complete: _____several days
